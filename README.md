@@ -2,7 +2,7 @@
 
 *A Professional Social Media Platform for Career Growth and Positive Networking*
 
-![Sambandhyog Logo](public/logo.png)
+![Sambandhyog Logo](public/logo1.png)
 
 ## 🌟 Detailed Overview
 
