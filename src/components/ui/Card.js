@@ -1,4 +1,4 @@
-import clsx from "clsx";
+﻿import clsx from "clsx";
 
 export default function Card({ className, children, padding = "p-6", interactive = false }) {
   return (
@@ -15,3 +15,4 @@ export default function Card({ className, children, padding = "p-6", interactive
     </div>
   );
 }
+

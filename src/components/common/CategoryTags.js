@@ -1,4 +1,4 @@
-import Badge from "@/components/ui/Badge";
+﻿import Badge from "@/components/ui/Badge";
 
 export default function CategoryTags({ items = [] }) {
   if (!items.length) return null;
@@ -10,3 +10,4 @@ export default function CategoryTags({ items = [] }) {
     </div>
   );
 }
+

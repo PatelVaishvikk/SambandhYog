@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import Header from "@/components/layout/Header";
@@ -121,3 +121,4 @@ export default function NotificationsPage() {
     </div>
   );
 }
+

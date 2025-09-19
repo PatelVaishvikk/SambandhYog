@@ -1,4 +1,4 @@
-import { Toaster, toast as sonnerToast } from "sonner";
+﻿import { Toaster, toast as sonnerToast } from "sonner";
 
 export function ToastContainer() {
   return (
@@ -17,3 +17,4 @@ export const toast = {
   error: (message, options) => sonnerToast.error(message, options),
   info: (message, options) => sonnerToast(message, options),
 };
+

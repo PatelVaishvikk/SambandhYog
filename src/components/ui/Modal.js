@@ -1,4 +1,4 @@
-import { Dialog, Transition } from "@headlessui/react";
+﻿import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
 export default function Modal({ isOpen, onClose, title, description, children, primaryAction, secondaryAction }) {
@@ -52,3 +52,4 @@ export default function Modal({ isOpen, onClose, title, description, children, p
     </Transition.Root>
   );
 }
+

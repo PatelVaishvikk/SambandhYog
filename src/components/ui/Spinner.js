@@ -1,4 +1,4 @@
-export default function Spinner({ size = "md" }) {
+﻿export default function Spinner({ size = "md" }) {
   const dimension = size === "lg" ? 32 : size === "sm" ? 16 : 20;
   const border = size === "lg" ? 4 : 3;
   return (
@@ -8,3 +8,4 @@ export default function Spinner({ size = "md" }) {
     />
   );
 }
+

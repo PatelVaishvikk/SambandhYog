@@ -1,4 +1,4 @@
-import clsx from "clsx";
+﻿import clsx from "clsx";
 
 const baseClass = "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold";
 
@@ -11,3 +11,4 @@ const variants = {
 export default function Badge({ children, className, variant = "default" }) {
   return <span className={clsx(baseClass, variants[variant] ?? variants.default, className)}>{children}</span>;
 }
+

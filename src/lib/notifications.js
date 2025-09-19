@@ -1,4 +1,4 @@
-import Notification from "@/models/Notification";
+﻿import Notification from "@/models/Notification";
 import { getSocketServer } from "@/lib/socketServer";
 
 export function serializeNotification(notification) {
@@ -48,3 +48,4 @@ export async function deleteNotifications({ userId, ids }) {
   const result = await Notification.deleteMany(query);
   return result;
 }
+

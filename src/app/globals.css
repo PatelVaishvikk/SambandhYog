@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -41,3 +41,4 @@ a {
     @apply box-border;
   }
 }
+

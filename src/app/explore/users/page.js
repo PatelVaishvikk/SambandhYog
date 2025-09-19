@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+﻿import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
@@ -47,7 +47,7 @@ export default async function ExploreUsersPage({ searchParams }) {
       <UsersSearch initialValue={searchTerm} />
 
       {searchTerm ? (
-        <p className="text-xs uppercase tracking-wide text-slate-400">Showing results for "{searchTerm}"</p>
+        <p className="text-xs uppercase tracking-wide text-slate-400">Showing results for {searchTerm}</p>
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -80,3 +80,4 @@ export default async function ExploreUsersPage({ searchParams }) {
     </div>
   );
 }
+

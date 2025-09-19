@@ -1,4 +1,4 @@
-import Navigation from "@/components/layout/Navigation";
+﻿import Navigation from "@/components/layout/Navigation";
 import Card from "@/components/ui/Card";
 import SearchBar from "@/components/common/SearchBar";
 import CategoryTags from "@/components/common/CategoryTags";
@@ -20,3 +20,4 @@ export default function ExplorePage() {
     </div>
   );
 }
+

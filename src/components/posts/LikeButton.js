@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Heart } from "lucide-react";
@@ -26,4 +26,5 @@ export default function LikeButton({ initialCount = 0 }) {
     </Button>
   );
 }
+
 

@@ -1,4 +1,4 @@
-import Avatar from "@/components/ui/Avatar";
+﻿import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import LikeButton from "@/components/posts/LikeButton";
@@ -36,3 +36,4 @@ export default function PostCard({ post }) {
     </Card>
   );
 }
+

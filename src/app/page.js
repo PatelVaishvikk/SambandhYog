@@ -1,4 +1,4 @@
-import Link from "next/link";
+Ôªøimport Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -29,7 +29,7 @@ const featureHighlights = [
   },
   {
     title: "Celebrate every win",
-    description: "From first jobs to funding roundsóshare the moments that matter with people who cheer for you.",
+    description: "From first jobs to funding rounds‚Äîshare the moments that matter with people who cheer for you.",
     icon: Trophy,
   },
 ];
@@ -122,7 +122,7 @@ export default function Home() {
               </div>
             </div>
             <p className="text-sm text-slate-500">
-              "The platform radiates encouragement. It&apos;s where progress feels seen and supported." ó Community member
+              &ldquo;The platform radiates encouragement. It&apos;s where progress feels seen and supported.&rdquo; ‚Äî Community member
             </p>
           </div>
         </section>
@@ -185,7 +185,7 @@ export default function Home() {
                 {
                   title: "From break-in to breakthrough",
                   description:
-                    "How I landed a product role without prior experienceósharing artifacts, mentors, and my learning playlist.",
+                    "How I landed a product role without prior experience‚Äîsharing artifacts, mentors, and my learning playlist.",
                   tags: ["Career pivot", "UX Research"],
                 },
                 {
@@ -219,18 +219,18 @@ export default function Home() {
               {[
                 {
                   quote:
-                    "SambandhYog helped me turn mentorship into a weekly habit. The positivity keeps me accountable.",
+                    'SambandhYog helped me turn mentorship into a weekly habit. The positivity keeps me accountable.',
                   author: "Ishita Mehta",
                   role: "Product Designer, Mumbai",
                 },
                 {
-                  quote: "We found advisors through community AMAsóthe tone stays encouraging even when feedback is candid.",
+                  quote: "We found advisors through community AMAs‚Äîthe tone stays encouraging even when feedback is candid.",
                   author: "Rahul Shah",
                   role: "Founder, Bengaluru",
                 },
               ].map((testimonial) => (
                 <li key={testimonial.author} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="italic">ì{testimonial.quote}î</p>
+                  <p className="italic">‚Äú{testimonial.quote}‚Äù</p>
                   <p className="mt-3 text-xs font-semibold text-slate-700">{testimonial.author}</p>
                   <p className="text-xs text-slate-400">{testimonial.role}</p>
                 </li>
@@ -294,3 +294,9 @@ export default function Home() {
     </div>
   );
 }
+
+
+
+
+
+

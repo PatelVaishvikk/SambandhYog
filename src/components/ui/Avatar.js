@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import clsx from "clsx";
@@ -30,3 +30,4 @@ export default function Avatar({ src = "", alt = "", size = 40, className }) {
     </span>
   );
 }
+

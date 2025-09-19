@@ -1,4 +1,4 @@
-import PostCard from "@/components/posts/PostCard";
+﻿import PostCard from "@/components/posts/PostCard";
 import Card from "@/components/ui/Card";
 import Spinner from "@/components/ui/Spinner";
 import Button from "@/components/ui/Button";
@@ -48,3 +48,4 @@ export default function PostList() {
     </div>
   );
 }
+
