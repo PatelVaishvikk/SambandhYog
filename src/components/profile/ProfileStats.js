@@ -4,7 +4,7 @@ export default function ProfileStats({ stats = {} }) {
   const entries = Object.entries(stats);
   if (!entries.length) return null;
   return (
-    <Card className="grid gap-4 sm:grid-cols-3">
+    <Card contentClassName="grid gap-4 sm:grid-cols-3">
       {entries.map(([key, value]) => (
         <div key={key} className="text-center">
           <p className="text-xs uppercase tracking-wide text-slate-500">{key}</p>
@@ -14,3 +14,4 @@ export default function ProfileStats({ stats = {} }) {
     </Card>
   );
 }
+

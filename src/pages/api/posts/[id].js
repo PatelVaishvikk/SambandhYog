@@ -1,27 +1,8 @@
+import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Post from "@/models/Post";
 import { requireSessionUser } from "@/lib/session";
-
-function serializePost(post) {
-  return {
-    id: post._id.toString(),
-    title: post.title,
-    content: post.content,
-    tags: post.tags ?? [],
-    likes: post.likes ?? 0,
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-    author: post.author
-      ? {
-          id: post.author._id?.toString?.() ?? post.author,
-          name: post.author.name,
-          username: post.author.username,
-          headline: post.author.headline ?? "",
-          avatarUrl: post.author.avatarUrl ?? "/default-avatar.png",
-        }
-      : null,
-  };
-}
+import { serializePost, ensurePostVisibility, populatePostForViewer } from "@/lib/posts";
 
 export default async function handler(req, res) {
   const {
@@ -32,13 +13,30 @@ export default async function handler(req, res) {
   await connectToDatabase();
 
   if (method === "GET") {
+    const user = await requireSessionUser(req, res);
+    if (!user) return;
+
     try {
-      const post = await Post.findById(id).populate("author", "name username headline avatarUrl");
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ message: "Invalid post id" });
+        return;
+      }
+
+      const post = await Post.findById(id)
+        .populate({ path: "author", select: "name username headline avatarUrl" })
+        .populate({ path: "comments.author", select: "name username headline avatarUrl" });
       if (!post) {
         res.status(404).json({ message: "Post not found" });
         return;
       }
-      res.status(200).json({ post: serializePost(post) });
+
+      const canView = await ensurePostVisibility({ viewerId: user._id, authorId: post.author?._id ?? post.author });
+      if (!canView) {
+        res.status(403).json({ message: "Follow this member to view their posts" });
+        return;
+      }
+
+      res.status(200).json({ post: serializePost(post, user._id) });
     } catch (error) {
       console.error("Get post error", error);
       res.status(500).json({ message: "Failed to fetch post" });

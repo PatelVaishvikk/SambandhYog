@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,33 +23,38 @@ export default function Sidebar() {
   const pendingIndicators = unreadCount + (requests?.length ?? 0);
 
   return (
-    <aside className="hidden w-64 flex-shrink-0 flex-col gap-3 border-r border-slate-200 bg-white p-6 lg:flex">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Workspace</p>
+    <aside className="hidden w-64 flex-shrink-0 flex-col gap-4 rounded-[28px] border border-white/10 bg-white/[0.05] p-6 shadow-surface backdrop-blur-xl lg:flex">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-400">Workspace</p>
       <nav className="mt-1 flex flex-col gap-1 text-sm">
         {NAV_LINKS.map((item) => {
-          const isActive = pathname === item.href;
-          const showIndicator =
-            item.href === "/dashboard/notifications" && pendingIndicators > 0 && !isActive;
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const showIndicator = item.href === "/dashboard/notifications" && pendingIndicators > 0 && !isActive;
 
           return (
             <Link
               key={item.href}
               href={item.href}
               className={clsx(
-                "group relative rounded-full px-3 py-2 font-medium transition",
+                "group relative flex items-center justify-between rounded-2xl px-4 py-2 font-medium transition",
                 isActive
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "text-slate-500 hover:bg-slate-100 hover:text-emerald-700"
+                  ? "bg-gradient-to-r from-brand-500/25 via-brand-500/20 to-transparent text-white"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
               )}
             >
-              {item.label}
+              <span>{item.label}</span>
               {showIndicator ? (
-                <span className="absolute right-3 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-emerald-500" aria-hidden />
+                <span className="h-2.5 w-2.5 rounded-full bg-accent-400 shadow-[0_0_12px_rgba(45,212,191,0.7)]" aria-hidden />
               ) : null}
             </Link>
           );
         })}
       </nav>
+      <div className="mt-auto rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-300">
+        <p className="font-semibold text-white">Daily focus</p>
+        <p className="mt-2 leading-relaxed">
+          Celebrate at least one win and send gratitude to a connection. Positivity compounds.
+        </p>
+      </div>
     </aside>
   );
 }

@@ -31,13 +31,13 @@ export default function LoginPage() {
           Reconnect with your circles, celebrate wins, and keep your professional momentum strong.
         </p>
         <p className="text-xs text-slate-500">
-          New here? <Link href="/auth/register" className="text-emerald-300">Create an account</Link>
+          New here? <Link href="/auth/register" className="text-brand-300">Create an account</Link>
         </p>
       </div>
-      <Card className="w-full max-w-md bg-slate-900/80 p-8">
+      <Card className="w-full max-w-md bg-white/10" padding="p-8" contentClassName="space-y-4">
         <LoginForm onSuccess={handleSuccess} />
         <div className="mt-4 text-xs text-slate-400">
-          <Link href="/auth/forgot-password" className="text-emerald-300">
+          <Link href="/auth/forgot-password" className="text-brand-300">
             Forgot your password?
           </Link>
         </div>
@@ -45,3 +45,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

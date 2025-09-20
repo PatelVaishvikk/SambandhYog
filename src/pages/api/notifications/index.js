@@ -15,7 +15,8 @@ export default async function handler(req, res) {
       const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200);
       const notifications = await Notification.find({ userId })
         .sort({ createdAt: -1 })
-        .limit(limit);
+        .limit(limit)
+        .lean({ virtuals: false });
 
       res.status(200).json({ notifications: notifications.map((item) => serializeNotification(item)) });
       return;

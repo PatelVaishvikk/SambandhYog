@@ -36,12 +36,13 @@ export default function RegisterPage() {
           <li>- Track your journey with positivity-first analytics</li>
         </ul>
         <p className="text-xs text-slate-500">
-          Already have an account? <Link href="/auth/login" className="text-emerald-300">Log in</Link>
+          Already have an account? <Link href="/auth/login" className="text-brand-300">Log in</Link>
         </p>
       </div>
-      <Card className="w-full max-w-md bg-slate-900/80 p-8">
+      <Card className="w-full max-w-md bg-white/10" padding="p-8" contentClassName="space-y-4">
         <RegisterForm onSuccess={handleSuccess} />
       </Card>
     </div>
   );
 }
+

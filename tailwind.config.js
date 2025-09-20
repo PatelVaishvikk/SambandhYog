@@ -1,4 +1,4 @@
-﻿/** @type {import("tailwindcss").Config} */
+/** @type {import("tailwindcss").Config} */
 module.exports = {
   content: [
     "./src/app/**/*.{js,jsx,ts,tsx,mdx}",
@@ -12,66 +12,68 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "dawn-sand": "#f9fafb",
-        "dawn-haze": "#ffffff",
-        "dawn-blush": "#fef3f7",
-        "dawn-sky": "#f2f6ff",
-        "aura-deep": "#101828",
-        aura: {
-          soft: "#eef2ff",
-          DEFAULT: "#c7d2fe",
-          strong: "#a5b4fc"
+        brand: {
+          50: "#eef2ff",
+          100: "#e0e7ff",
+          200: "#c7d2fe",
+          300: "#a5b4fc",
+          400: "#818cf8",
+          500: "#6366f1",
+          600: "#4f46e5",
+          700: "#4338ca",
+          800: "#3730a3",
+          900: "#1e1b4b"
         },
-        lotus: {
-          50: "#faf5ff",
-          100: "#f3e8ff",
-          200: "#e9d5ff",
-          300: "#d8b4fe",
-          400: "#c084fc",
-          500: "#a855f7",
-          600: "#9333ea",
-          700: "#7e22ce",
-          800: "#6b21a8",
-          900: "#581c87"
+        accent: {
+          50: "#f0fdfa",
+          100: "#ccfbf1",
+          200: "#99f6e4",
+          300: "#5eead4",
+          400: "#2dd4bf",
+          500: "#14b8a6",
+          600: "#0d9488",
+          700: "#0f766e",
+          800: "#115e59",
+          900: "#134e4a"
         },
-        sage: {
-          50: "#f5fdf7",
-          100: "#e7fbef",
-          200: "#c9f4dc",
-          300: "#a2e6c3",
-          400: "#6fd3a5",
-          500: "#46ba88",
-          600: "#33996f",
-          700: "#2d7a5b",
-          800: "#255f48",
-          900: "#1f4d3b"
+        night: {
+          900: "#040615",
+          800: "#06091c",
+          700: "#0b1029",
+          600: "#111936",
+          500: "#1a2447"
         },
-        ink: {
-          50: "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0",
-          300: "#cbd5e1",
-          400: "#94a3b8",
-          500: "#64748b",
-          600: "#475569",
-          700: "#334155",
-          800: "#1e293b",
-          900: "#0f172a"
+        mist: {
+          50: "rgba(255,255,255,0.04)",
+          100: "rgba(255,255,255,0.07)",
+          200: "rgba(148,163,184,0.25)"
         }
       },
       boxShadow: {
-        aura: "0 30px 60px -35px rgba(148, 163, 184, 0.45)",
-        "soft-inner": "inset 0 1px 0 rgba(255,255,255,0.9)"
+        aurora: "0 20px 45px -25px rgba(56, 189, 248, 0.45)",
+        surface: "0 18px 38px -20px rgba(15, 23, 42, 0.55)",
+        "surface-strong": "0 30px 70px -25px rgba(14, 26, 57, 0.75)"
       },
       borderRadius: {
-        fluid: "24px"
+        fluid: "28px"
       },
       fontFamily: {
         display: ["Geist", "var(--font-geist-sans)", "sans-serif"],
         body: ["Geist", "system-ui", "sans-serif"]
+      },
+      backdropBlur: {
+        xl: "22px"
+      },
+      keyframes: {
+        "pulse-glow": {
+          "0%, 100%": { opacity: "0.35", transform: "scale(0.95)" },
+          "50%": { opacity: "0.6", transform: "scale(1.05)" }
+        }
+      },
+      animation: {
+        "pulse-glow": "pulse-glow 8s ease-in-out infinite"
       }
     }
   },
   plugins: []
 };
-

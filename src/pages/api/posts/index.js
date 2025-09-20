@@ -1,41 +1,21 @@
-﻿import { connectToDatabase } from "@/lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
 import Post from "@/models/Post";
 import Follow from "@/models/Follow";
 import { requireSessionUser, getSessionUser } from "@/lib/session";
-
-function serializePost(post) {
-  return {
-    id: post._id.toString(),
-    title: post.title,
-    content: post.content,
-    tags: post.tags ?? [],
-    likes: post.likes ?? 0,
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-    author: post.author
-      ? {
-          id: post.author._id?.toString?.() ?? post.author.id ?? post.author,
-          name: post.author.name,
-          username: post.author.username,
-          headline: post.author.headline ?? "",
-          avatarUrl: post.author.avatarUrl ?? "/default-avatar.png",
-        }
-      : null,
-  };
-}
+import { serializePost, populatePostForViewer } from "@/lib/posts";
 
 async function getMutualFollowerIds(userId) {
-  const [followingDocs, followerDocs] = await Promise.all([
-    Follow.find({ follower: userId }).select("following"),
-    Follow.find({ following: userId }).select("follower"),
+  const [followingIds, followerIds] = await Promise.all([
+    Follow.distinct("following", { follower: userId }),
+    Follow.distinct("follower", { following: userId }),
   ]);
 
-  const followingSet = new Set(followingDocs.map((doc) => doc.following.toString()));
-  const mutualIds = followerDocs
-    .map((doc) => doc.follower.toString())
-    .filter((followerId) => followingSet.has(followerId));
+  if (!followingIds.length || !followerIds.length) {
+    return [];
+  }
 
-  return mutualIds;
+  const followerSet = new Set(followerIds.map((id) => id.toString()));
+  return followingIds.map((id) => id.toString()).filter((id) => followerSet.has(id));
 }
 
 export default async function handler(req, res) {
@@ -45,19 +25,21 @@ export default async function handler(req, res) {
     try {
       const sessionUser = await getSessionUser(req);
       if (!sessionUser) {
-        res.status(200).json({ posts: [] });
+        res.status(401).json({ message: "Not authenticated" });
         return;
       }
 
       const mutualIds = await getMutualFollowerIds(sessionUser._id);
-      const allowedAuthorIds = [sessionUser._id.toString(), ...mutualIds];
+      const authorIds = Array.from(new Set([sessionUser._id.toString(), ...mutualIds]));
 
-      const posts = await Post.find({ author: { $in: allowedAuthorIds } })
+      const posts = await Post.find({ author: { $in: authorIds } })
         .sort({ createdAt: -1 })
         .limit(50)
-        .populate("author", "name username headline avatarUrl");
+        .populate({ path: "author", select: "name username headline avatarUrl" })
+        .populate({ path: "comments.author", select: "name username headline avatarUrl" });
 
-      res.status(200).json({ posts: posts.map(serializePost) });
+      const payload = posts.map((post) => serializePost(post, sessionUser._id));
+      res.status(200).json({ posts: payload });
     } catch (error) {
       console.error("Fetch posts error", error);
       res.status(500).json({ message: "Failed to fetch posts" });
@@ -81,11 +63,13 @@ export default async function handler(req, res) {
         title: title?.trim() ?? "",
         content: content.trim(),
         tags: Array.isArray(tags) ? tags.filter(Boolean).map((tag) => tag.trim()) : [],
+        comments: [],
+        likedBy: [],
+        likes: 0,
       });
 
-      await post.populate("author", "name username headline avatarUrl");
-
-      res.status(201).json({ post: serializePost(post) });
+      const serialized = await populatePostForViewer(post, user._id);
+      res.status(201).json({ post: serialized });
     } catch (error) {
       console.error("Create post error", error);
       res.status(500).json({ message: "Failed to create post" });

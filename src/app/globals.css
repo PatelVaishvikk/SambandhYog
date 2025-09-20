@@ -1,39 +1,68 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-dawn-sand text-ink-900 antialiased font-body;
-  background-image: none;
+  @apply bg-night-900 text-slate-100 antialiased font-body;
+  color: #e2e8f0;
+  background-image:
+    radial-gradient(circle at 15% -10%, rgba(99, 102, 241, 0.35), transparent 55%),
+    radial-gradient(circle at 85% 0%, rgba(20, 184, 166, 0.25), transparent 55%),
+    linear-gradient(180deg, #070a1d 0%, #0c1230 40%, #101b3c 100%);
   min-height: 100vh;
 }
 
 a {
-  @apply text-inherit no-underline;
+  @apply text-inherit no-underline transition;
+}
+
+a:hover {
+  @apply text-brand-300;
 }
 
 .section-title {
-  @apply font-display text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl;
+  @apply font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl;
 }
 
 .section-subtitle {
-  @apply mt-3 max-w-2xl text-lg text-ink-500;
+  @apply mt-3 max-w-2xl text-base text-slate-300;
 }
 
 .card-surface {
-  @apply rounded-fluid border border-slate-200 bg-white p-6 shadow-md;
+  @apply relative overflow-hidden rounded-[28px] border border-white/10 bg-night-700/80 p-6 shadow-surface backdrop-blur-xl;
+}
+
+.card-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.08), transparent 55%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.card-surface:hover::before {
+  opacity: 1;
 }
 
 .badge {
-  @apply inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600;
+  @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-100;
 }
 
 .gradient-accent {
-  background: linear-gradient(180deg, rgba(249, 250, 251, 1), rgba(241, 245, 249, 0.9));
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.35), transparent 45%),
+    radial-gradient(circle at 90% 10%, rgba(20, 184, 166, 0.22), transparent 55%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(9, 13, 32, 0.94));
 }
 
 @layer base {
@@ -41,4 +70,3 @@ a {
     @apply box-border;
   }
 }
-

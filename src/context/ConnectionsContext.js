@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import apiClient from "@/lib/apiClient";
@@ -14,7 +14,10 @@ export function ConnectionsProvider({ children }) {
   const [requests, setRequests] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [conversations, setConversations] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [directoryQuery, setDirectoryQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isDirectoryLoading, setIsDirectoryLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const resetState = useCallback(() => {
@@ -22,8 +25,11 @@ export function ConnectionsProvider({ children }) {
     setRequests([]);
     setOutgoing([]);
     setConversations([]);
+    setMembers([]);
+    setDirectoryQuery("");
     setError(null);
     setIsLoading(false);
+    setIsDirectoryLoading(false);
   }, []);
 
   const fetchConnections = useCallback(async () => {
@@ -51,10 +57,47 @@ export function ConnectionsProvider({ children }) {
     }
   }, [user, resetState]);
 
+  const searchMembers = useCallback(
+    async (query = "") => {
+      if (!user) {
+        setMembers([]);
+        setDirectoryQuery("");
+        return [];
+      }
+      const nextQuery = query ?? "";
+      setDirectoryQuery(nextQuery);
+      setIsDirectoryLoading(true);
+      try {
+        const { data } = await apiClient.get("/users/search", { params: { q: nextQuery } });
+        const results = data.users ?? [];
+        setMembers(results);
+        return results;
+      } catch (err) {
+        console.error("Search members", err);
+        setMembers([]);
+        return [];
+      } finally {
+        setIsDirectoryLoading(false);
+      }
+    },
+    [user]
+  );
+
   useEffect(() => {
     if (!isInitialized) return;
     fetchConnections();
   }, [isInitialized, fetchConnections]);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    if (!user) {
+      setMembers([]);
+      setIsDirectoryLoading(false);
+      return;
+    }
+    const query = directoryQuery || "";
+    searchMembers(query).catch(() => null);
+  }, [isInitialized, user, searchMembers, directoryQuery]);
 
   const followBack = useCallback(
     async (targetUserId) => {
@@ -126,6 +169,7 @@ export function ConnectionsProvider({ children }) {
       const type = payload?.notification?.type;
       if (type === "follow-request" || type === "follow-accepted") {
         fetchConnections();
+        searchMembers(directoryQuery).catch(() => null);
       }
     };
 
@@ -146,7 +190,7 @@ export function ConnectionsProvider({ children }) {
       socket.off("notification:new", handleNotification);
       socket.off("connect", handleConnect);
     };
-  }, [socket, upsertConversation, fetchConnections]);
+  }, [socket, upsertConversation, fetchConnections, searchMembers, directoryQuery]);
 
   const sendMessage = useCallback(
     async ({ conversationId, recipientId, content }) => {
@@ -182,7 +226,10 @@ export function ConnectionsProvider({ children }) {
       requests,
       outgoing,
       conversations,
+      members,
+      directoryQuery,
       isLoading,
+      isDirectoryLoading,
       error,
       isSocketConnected,
       fetchConnections,
@@ -190,6 +237,7 @@ export function ConnectionsProvider({ children }) {
       acceptRequest,
       declineRequest,
       requestFollow,
+      searchMembers,
       sendMessage,
       openConversation,
     }),
@@ -198,7 +246,10 @@ export function ConnectionsProvider({ children }) {
       requests,
       outgoing,
       conversations,
+      members,
+      directoryQuery,
       isLoading,
+      isDirectoryLoading,
       error,
       isSocketConnected,
       fetchConnections,
@@ -206,6 +257,7 @@ export function ConnectionsProvider({ children }) {
       acceptRequest,
       declineRequest,
       requestFollow,
+      searchMembers,
       sendMessage,
       openConversation,
     ]
@@ -221,4 +273,11 @@ export function useConnections() {
   }
   return context;
 }
+
+
+
+
+
+
+
 

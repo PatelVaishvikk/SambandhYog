@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Button from "@/components/ui/Button";
@@ -20,7 +20,7 @@ export default function PostForm() {
 
   if (!authLoading && isInitialized && !user) {
     return (
-      <Card className="text-sm text-slate-500">
+      <Card contentClassName="text-sm text-slate-200">
         Log in to share your milestones with the community.
       </Card>
     );
@@ -44,10 +44,19 @@ export default function PostForm() {
   };
 
   return (
-    <Card className="space-y-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <Card contentClassName="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Share a milestone</p>
+          <h2 className="mt-1 text-xl font-semibold text-white">Inspire the circle with your progress</h2>
+        </div>
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+          {content.length}/{MAX_LENGTH}
+        </span>
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Title</label>
+          <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Title</label>
           <Input
             placeholder="Share a win, lesson, or resource"
             value={title}
@@ -56,15 +65,14 @@ export default function PostForm() {
           />
         </div>
         <div className="space-y-2 text-sm">
-          <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Post content</label>
+          <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Post content</label>
           <textarea
-            className="min-h-[160px] w-full rounded-3xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 shadow-inner transition focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+            className="min-h-[180px] w-full rounded-3xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-300/30"
             placeholder="Celebrate a milestone, ask for guidance, or share a reflection."
             maxLength={MAX_LENGTH}
             value={content}
             onChange={(event) => setContent(event.target.value)}
           />
-          <span className="text-xs text-slate-400">{content.length}/{MAX_LENGTH} characters</span>
         </div>
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting || !content.trim()}>
@@ -81,4 +89,5 @@ export default function PostForm() {
     </Card>
   );
 }
+
 

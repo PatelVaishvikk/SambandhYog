@@ -1,47 +1,133 @@
-﻿"use client";
+"use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from "react";
 import apiClient from "@/lib/apiClient";
 import { useAuth } from "@/context/AuthContext";
 
 const PostsContext = createContext(null);
 
 export function PostsProvider({ children }) {
-  const { user } = useAuth();
+  const { user, isInitialized } = useAuth();
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const fetchPosts = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await apiClient.get("/posts");
-      setPosts(data?.posts ?? []);
-      setError(null);
-    } catch (err) {
-      console.error("Fetch posts", err);
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const inflightRequest = useRef(null);
+  const currentUserIdRef = useRef(null);
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    currentUserIdRef.current = user?.id ?? null;
+  }, [user]);
 
-  const addPost = useCallback(
-    async (payload) => {
-      const { data } = await apiClient.post("/posts", payload);
-      setPosts((items) => [data.post, ...items]);
-      return data.post;
-    },
-    []
-  );
+  const resetState = useCallback(() => {
+    inflightRequest.current = null;
+    setPosts([]);
+    setError(null);
+    setIsLoading(false);
+  }, []);
+
+  const upsertPost = useCallback((post) => {
+    if (!post) return;
+    setPosts((items) => {
+      const index = items.findIndex((item) => item.id === post.id);
+      if (index === -1) {
+        return [post, ...items];
+      }
+      const clone = [...items];
+      clone[index] = post;
+      return clone;
+    });
+  }, []);
+
+  const fetchPosts = useCallback(async () => {
+    const expectedUserId = currentUserIdRef.current;
+
+    if (!expectedUserId) {
+      resetState();
+      return [];
+    }
+
+    if (inflightRequest.current) {
+      return inflightRequest.current;
+    }
+
+    setIsLoading(true);
+
+    const request = apiClient
+      .get("/posts")
+      .then(({ data }) => {
+        if (currentUserIdRef.current !== expectedUserId) {
+          return [];
+        }
+        const payload = data?.posts ?? [];
+        setPosts(payload);
+        setError(null);
+        return payload;
+      })
+      .catch((err) => {
+        if (currentUserIdRef.current === expectedUserId) {
+          console.error("Fetch posts", err);
+          if (err.status === 401) {
+            resetState();
+          } else {
+            setError(err.message);
+          }
+        }
+        return [];
+      })
+      .finally(() => {
+        if (currentUserIdRef.current === expectedUserId) {
+          setIsLoading(false);
+        }
+        inflightRequest.current = null;
+      });
+
+    inflightRequest.current = request;
+    return request;
+  }, [resetState]);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+
+    if (!user) {
+      resetState();
+      return;
+    }
+
+    fetchPosts().catch(() => null);
+  }, [isInitialized, user, fetchPosts, resetState]);
+
+  const addPost = useCallback(async (payload) => {
+    const { data } = await apiClient.post("/posts", payload);
+    setPosts((items) => [data.post, ...items]);
+    return data.post;
+  }, []);
+
+  const toggleReaction = useCallback(async (postId) => {
+    const { data } = await apiClient.post("/posts/react", { postId });
+    upsertPost(data.post);
+    return data.post;
+  }, [upsertPost]);
+
+  const addComment = useCallback(async (postId, content) => {
+    const { data } = await apiClient.post("/posts/comment", { postId, content });
+    upsertPost(data.post);
+    return data.post;
+  }, [upsertPost]);
 
   const value = useMemo(
-    () => ({ posts, isLoading, error, fetchPosts, addPost, currentUser: user }),
-    [posts, isLoading, error, fetchPosts, addPost, user]
+    () => ({
+      posts,
+      isLoading,
+      error,
+      fetchPosts,
+      addPost,
+      toggleReaction,
+      addComment,
+      currentUser: user,
+    }),
+    [posts, isLoading, error, fetchPosts, addPost, toggleReaction, addComment, user]
   );
 
   return <PostsContext.Provider value={value}>{children}</PostsContext.Provider>;
@@ -54,4 +140,3 @@ export function usePosts() {
   }
   return context;
 }
-

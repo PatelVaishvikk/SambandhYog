@@ -1,11 +1,12 @@
-﻿import clsx from "clsx";
+import clsx from "clsx";
 
-const baseClass = "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold";
+const baseClass =
+  "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold tracking-wide uppercase";
 
 const variants = {
-  default: "bg-slate-100 text-slate-600",
-  success: "bg-emerald-100 text-emerald-600",
-  warning: "bg-amber-100 text-amber-500",
+  default: "border-white/20 bg-white/10 text-slate-100",
+  success: "border-accent-400/50 bg-accent-400/15 text-accent-100",
+  warning: "border-amber-400/40 bg-amber-400/15 text-amber-100",
 };
 
 export default function Badge({ children, className, variant = "default" }) {

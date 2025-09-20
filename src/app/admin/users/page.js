@@ -12,7 +12,7 @@ export default function AdminUsersPage() {
       <Header />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-6 py-16">
         <h1 className="text-3xl font-semibold text-white">Community members</h1>
-        <Card className="space-y-4">
+        <Card contentClassName="space-y-4">
           <table className="w-full text-left text-sm text-slate-300">
             <thead>
               <tr className="text-xs uppercase tracking-wide text-slate-500">
@@ -26,7 +26,7 @@ export default function AdminUsersPage() {
                 <tr key={user.id}>
                   <td className="py-3 text-white">{user.name}</td>
                   <td className="py-3">{user.role}</td>
-                  <td className="py-3 text-emerald-300">{user.status}</td>
+                  <td className="py-3 text-brand-300">{user.status}</td>
                 </tr>
               ))}
             </tbody>
@@ -36,3 +36,4 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+

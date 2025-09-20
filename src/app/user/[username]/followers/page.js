@@ -31,14 +31,14 @@ export default function FollowersPage({ params }) {
       </div>
 
       {isLoading && !followers.length ? (
-        <Card className="flex items-center gap-3 text-sm text-slate-300">
+        <Card contentClassName="flex items-center gap-3 text-sm text-slate-200">
           <Spinner size="sm" />
           <span>Fetching supporters...</span>
         </Card>
       ) : null}
 
       {!isLoading && !followers.length ? (
-        <Card className="text-sm text-slate-300">No supporters yet. Share updates to grow your circle.</Card>
+        <Card contentClassName="text-sm text-slate-200">No supporters yet. Share updates to grow your circle.</Card>
       ) : null}
 
       <div className="space-y-3">
@@ -46,18 +46,18 @@ export default function FollowersPage({ params }) {
           const canMessage = follower.status === "following";
 
           return (
-            <Card key={follower.id} className="flex items-center justify-between gap-3 p-5">
+            <Card key={follower.id} padding="p-5" contentClassName="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <Avatar src={follower.avatarUrl} alt={follower.name} size={40} />
                 <div>
                   <Link
                     href={`/user/${follower.username}`}
-                    className="text-sm font-semibold text-white transition hover:text-emerald-200"
+                    className="text-sm font-semibold text-white transition hover:text-brand-200"
                   >
                     {follower.name}
                   </Link>
                   <p className="text-xs text-slate-400">{follower.headline}</p>
-                  <p className="text-xs text-slate-500">@{follower.username}</p>
+                  <p className="text-xs text-slate-400">@{follower.username}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export default function FollowersPage({ params }) {
                     <Button size="sm" variant="secondary" onClick={() => handleMessage(follower.id)} disabled={isLoading}>
                       Message
                     </Button>
-                    <span className="text-xs font-medium text-emerald-300">Mutual connection</span>
+                    <span className="text-xs font-medium text-brand-300">Mutual connection</span>
                   </>
                 ) : (
                   <Button size="sm" onClick={() => followBack(follower.id)} disabled={isLoading}>
@@ -81,3 +81,5 @@ export default function FollowersPage({ params }) {
     </div>
   );
 }
+
+

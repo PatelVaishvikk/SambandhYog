@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import clsx from "clsx";
@@ -17,7 +17,7 @@ export default function Avatar({ src = "", alt = "", size = 40, className }) {
   return (
     <span
       className={clsx(
-        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 text-xs font-semibold text-slate-500",
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-night-600/90 text-xs font-semibold text-slate-100",
         className
       )}
       style={{ width: dimension, height: dimension }}

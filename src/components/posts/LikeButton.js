@@ -1,16 +1,13 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
-import { Heart } from "lucide-react";
+import clsx from "clsx";
 import Button from "@/components/ui/Button";
+import { Heart } from "lucide-react";
 
-export default function LikeButton({ initialCount = 0 }) {
-  const [count, setCount] = useState(initialCount);
-  const [liked, setLiked] = useState(false);
-
-  const toggle = () => {
-    setLiked((prev) => !prev);
-    setCount((prev) => (liked ? prev - 1 : prev + 1));
+export default function LikeButton({ count = 0, liked = false, onToggle, disabled = false }) {
+  const handleClick = () => {
+    if (disabled) return;
+    onToggle?.();
   };
 
   return (
@@ -18,13 +15,15 @@ export default function LikeButton({ initialCount = 0 }) {
       type="button"
       variant="ghost"
       size="sm"
-      onClick={toggle}
-      className={liked ? "text-emerald-600" : undefined}
+      onClick={handleClick}
+      disabled={disabled}
+      className={clsx("gap-1 text-xs", liked ? "text-brand-300" : "text-slate-300")}
     >
-      <Heart className={`h-4 w-4 ${liked ? "fill-emerald-500 text-emerald-500" : "text-slate-500"}`} aria-hidden />
+      <Heart
+        className={clsx("h-4 w-4", liked ? "fill-brand-400 text-brand-400" : "text-slate-400")}
+        aria-hidden
+      />
       {count}
     </Button>
   );
 }
-
-

@@ -5,7 +5,7 @@ import Card from "@/components/ui/Card";
 export default function ProfileCard({ profile }) {
   if (!profile) return null;
   return (
-    <Card className="flex flex-col items-center gap-4 text-center">
+    <Card contentClassName="flex flex-col items-center gap-4 text-center">
       <Avatar src={profile.avatarUrl} alt={profile.name} size={80} />
       <div>
         <h2 className="text-xl font-semibold text-white">{profile.name}</h2>
@@ -15,3 +15,4 @@ export default function ProfileCard({ profile }) {
     </Card>
   );
 }
+

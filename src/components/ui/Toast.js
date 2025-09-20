@@ -1,12 +1,12 @@
-﻿import { Toaster, toast as sonnerToast } from "sonner";
+import { Toaster, toast as sonnerToast } from "sonner";
 
 export function ToastContainer() {
   return (
     <Toaster
-      theme="light"
+      theme="dark"
       position="top-right"
       toastOptions={{
-        className: "rounded-2xl bg-white text-slate-700 border border-slate-200 shadow",
+        className: "rounded-2xl border border-white/10 bg-night-700/90 text-slate-100 shadow-surface backdrop-blur-xl",
       }}
     />
   );
