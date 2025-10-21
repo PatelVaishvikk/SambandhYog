@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, Search, Send, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, Paperclip, Search, Send, Sparkles } from "lucide-react";
 import clsx from "clsx";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
@@ -14,6 +14,17 @@ import { formatRelativeTime } from "@/utils/formatters";
 function normalizeMessages(conversation) {
   const list = Array.isArray(conversation?.messages) ? conversation.messages : [];
   return list.slice().sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0));
+}
+
+function formatClockTime(timestamp) {
+  if (!timestamp) return "";
+  try {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch (error) {
+    return "";
+  }
 }
 
 export default function ChatPanel() {
@@ -111,6 +122,31 @@ export default function ChatPanel() {
   );
 
   const activeMessages = useMemo(() => normalizeMessages(activeConversation), [activeConversation]);
+  const messageContainerRef = useRef(null);
+
+  const lastMessage = activeMessages.length ? activeMessages[activeMessages.length - 1] : null;
+  const lastInteraction = lastMessage?.createdAt ?? activeConversation?.updatedAt ?? activeConversation?.createdAt;
+  const statusText = activeConversation
+    ? isSocketConnected
+      ? lastInteraction
+        ? `Last active ${formatRelativeTime(lastInteraction)}`
+        : "Online now"
+      : "Reconnecting..."
+    : "";
+
+  useEffect(() => {
+    if (!messageContainerRef.current) return;
+    messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+  }, [activeMessages, activeConversation?.id, isMobile]);
+
+  const sendDraftMessage = async () => {
+    if (!activeConversation || !draft.trim()) return;
+    const conversation = await sendMessage({ conversationId: activeConversation.id, content: draft.trim() });
+    if (conversation?.id) {
+      setActiveId(conversation.id);
+    }
+    setDraft("");
+  };
 
   const handleSelectConversation = (conversationId) => {
     setActiveId(conversationId);
@@ -122,12 +158,14 @@ export default function ChatPanel() {
 
   const handleSend = async (event) => {
     event.preventDefault();
-    if (!activeConversation || !draft.trim()) return;
-    const conversation = await sendMessage({ conversationId: activeConversation.id, content: draft.trim() });
-    if (conversation?.id) {
-      setActiveId(conversation.id);
+    await sendDraftMessage();
+  };
+
+  const handleComposerKeyDown = async (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      await sendDraftMessage();
     }
-    setDraft("");
   };
 
   const handleOpenConversation = async (participantId) => {
@@ -187,15 +225,21 @@ export default function ChatPanel() {
   }
 
   const conversationList = (
-    <section
+    <aside
       className={clsx(
-        "flex flex-col border-white/10",
-        isMobile ? "w-full border-b" : "w-72 border-r"
+        "flex min-h-0 flex-col bg-night-800/70",
+        isMobile ? "w-full border-b border-white/10" : "w-[320px] border-r border-white/10"
       )}
     >
-      <header className="border-b border-white/10 px-5 py-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Messages</h2>
-        <p className="mt-1 text-sm text-slate-100">Connected with {followers.length} supporters</p>
+      <header className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div>
+          <h2 className="text-sm font-semibold text-white">Chats</h2>
+          <p className="text-xs text-slate-400">Connected with {followers.length} supporters</p>
+        </div>
+        <span className={clsx("flex items-center gap-2 rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.3em]", isSocketConnected ? "bg-emerald-400/15 text-emerald-200" : "bg-amber-400/15 text-amber-200")}>
+          <span className={clsx("h-2 w-2 rounded-full", isSocketConnected ? "bg-emerald-400" : "bg-amber-300")} />
+          {isSocketConnected ? "Online" : "Connecting"}
+        </span>
       </header>
       <div className="border-b border-white/10 px-4 py-3">
         <div className="relative">
@@ -203,17 +247,18 @@ export default function ChatPanel() {
           <Input
             value={conversationSearch}
             onChange={(event) => setConversationSearch(event.target.value)}
-            placeholder="Search conversations"
-            className="pl-9"
+            placeholder="Search or start a chat"
+            className="rounded-full bg-white/5 pl-9"
           />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto px-3 py-4">
+      <div className="flex-1 overflow-y-auto px-3 py-4 overscroll-contain">
         {filteredConversations.length ? (
           <ul className="space-y-2">
             {filteredConversations.map((conversation) => {
               const isActive = conversation.id === activeId;
-              const lastMessage = normalizeMessages(conversation).slice(-1)[0];
+              const messages = normalizeMessages(conversation);
+              const lastMessage = messages.length ? messages[messages.length - 1] : null;
               const snippet = lastMessage?.content ?? "Start a new conversation";
               const timestamp = lastMessage?.createdAt ?? conversation.updatedAt ?? conversation.createdAt;
               return (
@@ -221,22 +266,26 @@ export default function ChatPanel() {
                   <button
                     type="button"
                     onClick={() => handleSelectConversation(conversation.id)}
-                    className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-2 text-left transition ${
-                      isActive
-                        ? "border-brand-400/60 bg-brand-500/20 text-white"
-                        : "border-white/10 bg-white/10 text-slate-200 hover:border-brand-400/40 hover:text-white"
-                    }`}
+                    className={clsx(
+                      "relative flex w-full items-center gap-3 rounded-3xl px-3 py-3 text-left transition",
+                      isActive ? "bg-white/10" : "hover:bg-white/5"
+                    )}
                   >
-                    <Avatar src={conversation.participant?.avatarUrl} alt={conversation.participant?.name} size={40} />
+                    <Avatar src={conversation.participant?.avatarUrl} alt={conversation.participant?.name} size={44} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-white">
-                        {conversation.participant?.name ?? "Unknown"}
-                      </p>
-                      <p className="truncate text-xs text-slate-400">{snippet}</p>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="truncate text-sm font-semibold text-white">
+                          {conversation.participant?.name ?? "Unknown"}
+                        </p>
+                        <time className="shrink-0 text-[11px] uppercase tracking-[0.25em] text-slate-500">
+                          {timestamp ? formatClockTime(timestamp) : ""}
+                        </time>
+                      </div>
+                      <p className="mt-1 truncate text-xs text-slate-400">{snippet}</p>
                     </div>
-                    <time className="text-[10px] uppercase tracking-wide text-slate-500">
-                      {timestamp ? formatRelativeTime(timestamp) : ""}
-                    </time>
+                    {isActive ? (
+                      <span className="absolute inset-y-2 left-1 w-1 rounded-full bg-brand-400" aria-hidden />
+                    ) : null}
                   </button>
                 </li>
               );
@@ -249,98 +298,112 @@ export default function ChatPanel() {
           </div>
         )}
       </div>
-    </section>
+      <footer className="border-t border-white/10 px-5 py-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">
+        Tip: tap a follower below to begin a new chat.
+      </footer>
+    </aside>
   );
 
   const messagePanel = (
-    <section
-      className={clsx(
-        "flex min-w-0 flex-1 flex-col",
-        !activeConversation && "items-center justify-center"
-      )}
-    >
+    <section className="flex min-w-0 flex-1 min-h-0 flex-col bg-night-900/60">
       {activeConversation ? (
         <>
-          <header className="flex items-center gap-3 border-b border-white/10 px-6 py-4">
-            {isMobile ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setMobileView("list")}
-                className="-ml-2 px-2 text-slate-200"
-              >
-                <ChevronLeft className="h-4 w-4" aria-hidden />
-                Back
-              </Button>
-            ) : null}
-            <Avatar
-              src={activeConversation.participant?.avatarUrl}
-              alt={activeConversation.participant?.name}
-              size={isMobile ? 40 : 44}
-            />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">{activeConversation.participant?.name}</p>
-              <p className="text-xs text-slate-400">
-                {isSocketConnected ? "Active now" : "Reachable when they reconnect"}
-              </p>
+          <header className="flex items-center justify-between border-b border-white/10 px-4 py-4 sm:px-6">
+            <div className="flex items-center gap-3">
+              {isMobile ? (
+                <button
+                  type="button"
+                  onClick={() => setMobileView("list")}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:text-white"
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden />
+                  <span className="sr-only">Back to conversations</span>
+                </button>
+              ) : null}
+              <Avatar src={activeConversation.participant?.avatarUrl} alt={activeConversation.participant?.name} size={48} />
+              <div>
+                <p className="text-sm font-semibold text-white">{activeConversation.participant?.name ?? "Unknown"}</p>
+                <p className="text-xs text-slate-400">{statusText}</p>
+              </div>
             </div>
+            <span className="hidden text-xs uppercase tracking-[0.3em] text-slate-500 sm:inline">Secure connection - SambandhYog</span>
           </header>
-          <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-            <div className="space-y-3">
-              {activeMessages.map((message) => {
-                const fromMe = message.from === "me";
+
+          <div
+            ref={messageContainerRef}
+            className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-6 sm:px-6"
+          >
+            {activeMessages.length ? (
+              activeMessages.map((message) => {
+                const isMine = message.from === "me";
                 return (
-                  <div
-                    key={message.id}
-                    className={`flex ${fromMe ? "justify-end" : "justify-start"}`}
-                  >
+                  <div key={message.id} className={clsx("flex", isMine ? "justify-end" : "justify-start")}>
                     <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
-                        fromMe ? "bg-brand-500 text-white" : "bg-white/10 text-slate-100"
-                      }`}
+                      className={clsx(
+                        "max-w-[80%] rounded-3xl px-4 py-2 text-sm leading-relaxed shadow-lg",
+                        isMine ? "bg-brand-500/90 text-white" : "bg-white/10 text-slate-100"
+                      )}
                     >
-                      <p>{message.content}</p>
-                      <span className="mt-1 block text-[10px] uppercase tracking-wide text-white/70">
-                        {formatRelativeTime(message.createdAt)}
+                      <p className="whitespace-pre-line">{message.content}</p>
+                      <span
+                        className={clsx(
+                          "mt-1 block text-right text-[10px] tracking-[0.2em]",
+                          isMine ? "text-white/80" : "text-slate-300/80"
+                        )}
+                      >
+                        {formatClockTime(message.createdAt)}
                       </span>
                     </div>
                   </div>
                 );
-              })}
-            </div>
+              })
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-sm text-slate-400">
+                <Sparkles className="h-8 w-8 text-slate-500" aria-hidden />
+                <p>Say hello and start the conversation.</p>
+              </div>
+            )}
           </div>
-          <form onSubmit={handleSend} className="border-t border-white/10 px-4 py-4 sm:px-6">
-            <div className="flex items-center gap-3">
-              <Input
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder={`Send a kind message to ${activeConversation.participant?.name}`}
-                className="flex-1"
-              />
-              <Button type="submit" size="sm" variant="secondary" disabled={!draft.trim()}>
-                <Send className="h-4 w-4" aria-hidden />
+
+          <footer className="border-t border-white/10 px-4 py-4 sm:px-6">
+            <form onSubmit={handleSend} className="flex items-end gap-3">
+              <button
+                type="button"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:text-white"
+              >
+                <Paperclip className="h-4 w-4" aria-hidden />
+                <span className="sr-only">Attach a file</span>
+              </button>
+              <div className="flex-1">
+                <div className="rounded-3xl border border-white/10 bg-white/5">
+                  <textarea
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    onKeyDown={handleComposerKeyDown}
+                    placeholder="Type a message"
+                    rows={1}
+                    className="max-h-32 w-full resize-none rounded-3xl bg-transparent px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus:outline-none"
+                  />
+                </div>
+                <p className="mt-2 text-[11px] text-slate-500">Press Enter to send - Shift + Enter for a new line</p>
+              </div>
+              <Button type="submit" icon={Send} disabled={!draft.trim()}>
                 Send
               </Button>
-            </div>
-          </form>
+            </form>
+          </footer>
         </>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/10">
-            <Sparkles className="h-7 w-7 text-brand-300" aria-hidden />
-          </div>
-          <p className="text-base font-semibold text-white">Select a conversation</p>
-          <p className="text-sm text-slate-400">
-            Choose someone from your messages or followers to begin a positive exchange.
-          </p>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center text-sm text-slate-400">
+          <Sparkles className="h-8 w-8 text-slate-500" aria-hidden />
+          <p>Select a conversation to start messaging.</p>
         </div>
       )}
     </section>
   );
 
   const followersContent = (
-    <div className="flex-1 overflow-y-auto px-3 py-4">
+    <div className="flex-1 overflow-y-auto px-3 py-4 overscroll-contain">
       {filteredFollowers.length ? (
         <ul className="space-y-2">
           {filteredFollowers.map((follower) => {
@@ -384,7 +447,7 @@ export default function ChatPanel() {
   );
 
   const discoverContent = (
-    <div className="flex-1 overflow-y-auto px-3 py-4">
+    <div className="flex-1 overflow-y-auto px-3 py-4 overscroll-contain">
       {isDirectoryLoading ? (
         <div className="flex items-center justify-center gap-3 text-sm text-slate-200">
           <Spinner size="sm" />
@@ -452,7 +515,7 @@ export default function ChatPanel() {
   );
 
   const followersPanel = (
-    <aside className="flex w-72 flex-col border-l border-white/10">
+    <aside className="flex w-72 min-h-0 flex-col border-l border-white/10">
       <header className="border-b border-white/10 px-5 py-4">
         <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Connections</h2>
         <p className="mt-1 text-sm text-slate-100">Follow and chat with positive peers</p>
@@ -519,8 +582,10 @@ export default function ChatPanel() {
         className="w-full"
         padding="p-0"
         contentClassName={clsx(
-          "overflow-hidden",
-          isMobile ? "flex min-h-[520px] flex-col" : "flex h-[640px]"
+          "flex min-h-0 overflow-hidden",
+          isMobile
+            ? "h-[calc(100vh-160px)] min-h-[480px] max-h-[720px] flex-col"
+            : "h-[calc(100vh-200px)] max-h-[720px]"
         )}
       >
         {isMobile ? (
@@ -584,5 +649,8 @@ export default function ChatPanel() {
     </div>
   );
 }
+
+
+
 
 

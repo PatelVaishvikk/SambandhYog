@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "SambandhYog Mobile",
+    "slug": "sambandhyog-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.sambandhyog.app",
+      "permissions": []
+    },
+    "extra": {
+      "apiBaseUrl": "http://10.0.2.2:3000/api",
+      "socketUrl": "http://10.0.2.2:3000",
+      "cookieName": "sb_session"
+    }
+  }
+}

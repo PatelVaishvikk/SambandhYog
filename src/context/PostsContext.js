@@ -38,6 +38,10 @@ export function PostsProvider({ children }) {
     });
   }, []);
 
+  const removePost = useCallback((postId) => {
+    setPosts((items) => items.filter((item) => item.id !== postId));
+  }, []);
+
   const fetchPosts = useCallback(async () => {
     const expectedUserId = currentUserIdRef.current;
 
@@ -116,6 +120,23 @@ export function PostsProvider({ children }) {
     return data.post;
   }, [upsertPost]);
 
+  const updatePost = useCallback(
+    async (postId, payload) => {
+      const { data } = await apiClient.put(`/posts/${postId}`, payload);
+      upsertPost(data.post);
+      return data.post;
+    },
+    [upsertPost]
+  );
+
+  const deletePost = useCallback(
+    async (postId) => {
+      await apiClient.delete(`/posts/${postId}`);
+      removePost(postId);
+    },
+    [removePost]
+  );
+
   const value = useMemo(
     () => ({
       posts,
@@ -125,9 +146,11 @@ export function PostsProvider({ children }) {
       addPost,
       toggleReaction,
       addComment,
+      updatePost,
+      deletePost,
       currentUser: user,
     }),
-    [posts, isLoading, error, fetchPosts, addPost, toggleReaction, addComment, user]
+    [posts, isLoading, error, fetchPosts, addPost, toggleReaction, addComment, updatePost, deletePost, user]
   );
 
   return <PostsContext.Provider value={value}>{children}</PostsContext.Provider>;

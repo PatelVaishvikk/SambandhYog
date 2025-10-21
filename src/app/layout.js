@@ -4,6 +4,7 @@ import { ToastContainer } from "@/components/ui/Toast";
 import { AuthProvider } from "@/context/AuthContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { PostsProvider } from "@/context/PostsContext";
+import { StoriesProvider } from "@/context/StoriesContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ConnectionsProvider } from "@/context/ConnectionsContext";
 import MobileNav from "@/components/layout/MobileNav";
@@ -54,11 +55,13 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <NotificationProvider>
               <ConnectionsProvider>
-                <PostsProvider>
-                  <ToastContainer />
-                  <div className="pb-24 md:pb-0">{children}</div>
-                  <MobileNav />
-                </PostsProvider>
+                <StoriesProvider>
+                  <PostsProvider>
+                    <ToastContainer />
+                    <div className="pb-24 md:pb-0">{children}</div>
+                    <MobileNav />
+                  </PostsProvider>
+                </StoriesProvider>
               </ConnectionsProvider>
             </NotificationProvider>
           </AuthProvider>

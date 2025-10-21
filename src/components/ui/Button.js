@@ -27,8 +27,10 @@ export default function Button({
       ? "px-4 py-2 text-sm"
       : "px-6 py-2.5 text-sm";
 
+  const hydrationProps = Component === "button" ? { suppressHydrationWarning: true } : {};
+
   return (
-    <Component className={clsx(baseStyles, variants[variant], sizeStyles, className)} {...props}>
+    <Component className={clsx(baseStyles, variants[variant], sizeStyles, className)} {...hydrationProps} {...props}>
       {Icon ? <Icon className="h-4 w-4" aria-hidden /> : null}
       {children}
     </Component>

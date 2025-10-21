@@ -44,6 +44,50 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (method === "PUT") {
+    const user = await requireSessionUser(req, res);
+    if (!user) return;
+
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ message: "Invalid post id" });
+        return;
+      }
+
+      const post = await Post.findById(id);
+      if (!post) {
+        res.status(404).json({ message: "Post not found" });
+        return;
+      }
+
+      if (post.author.toString() !== user._id.toString()) {
+        res.status(403).json({ message: "You cannot update this post" });
+        return;
+      }
+
+      const { title, content, tags } = req.body ?? {};
+      const trimmedContent = typeof content === "string" ? content.trim() : "";
+      if (!trimmedContent) {
+        res.status(400).json({ message: "Post content is required" });
+        return;
+      }
+
+      post.title = typeof title === "string" ? title.trim() : post.title;
+      post.content = trimmedContent;
+      if (Array.isArray(tags)) {
+        post.tags = tags.filter(Boolean).map((tag) => tag.trim());
+      }
+
+      await post.save();
+      const serialized = await populatePostForViewer(post, user._id);
+      res.status(200).json({ post: serialized });
+    } catch (error) {
+      console.error("Update post error", error);
+      res.status(500).json({ message: "Failed to update post" });
+    }
+    return;
+  }
+
   if (method === "DELETE") {
     const user = await requireSessionUser(req, res);
     if (!user) return;
