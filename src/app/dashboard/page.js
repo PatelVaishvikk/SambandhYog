@@ -52,7 +52,7 @@ const QUICK_ACTIONS = [
   },
   {
     title: "Celebrate a win",
-    description: "Capture today's progress before it fades and inspire the group.",
+    description: "Capture today&apos;s progress before it fades and inspire the group.",
     icon: Sparkles,
     href: "/dashboard/create-post",
     cta: "Share update",
@@ -68,7 +68,7 @@ const QUICK_ACTIONS = [
   },
   {
     title: "Plan the next move",
-    description: "Drop a short session on the calendar so everyone knows what's next.",
+    description: "Drop a short session on the calendar so everyone knows what&apos;s next.",
     icon: Calendar,
     href: "/dashboard/notifications",
     cta: "Review agenda",
@@ -138,7 +138,7 @@ export default function DashboardPage() {
       {
         title: "Waiting on you",
         value: unreadCount,
-        hint: unreadCount ? "conversations need your reply" : "you're fully caught up",
+        hint: unreadCount ? "conversations need your reply" : "you&apos;re fully caught up",
       },
       {
         title: "Circle vibe",
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Stay intentional</p>
-                      <h3 className="text-lg font-semibold text-white">Today's focus cues</h3>
+                      <h3 className="text-lg font-semibold text-white">Today&apos;s focus cues</h3>
                     </div>
                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
                       {FOCUS_PROMPTS.length} prompts

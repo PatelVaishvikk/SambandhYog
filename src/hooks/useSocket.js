@@ -12,18 +12,25 @@ export function useSocket() {
 
   useEffect(() => {
     let active = true;
+    let instance = null;
 
     async function connect() {
       try {
         await fetch(SOCKET_PATH, { credentials: "include" });
-        const instance = io({
+        instance = io({
           path: SOCKET_PATH,
-          transports: ["websocket"],
+          transports: ["websocket", "polling"],
           withCredentials: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
         });
 
         instance.on("connect_error", (error) => {
           console.error("Socket connection error", error);
+        });
+
+        instance.on("error", (error) => {
+          console.error("Socket error", error);
         });
 
         if (active) {
@@ -47,6 +54,10 @@ export function useSocket() {
 
     return () => {
       active = false;
+      if (instance) {
+        instance.disconnect();
+        instance = null;
+      }
       setSocket((existing) => {
         existing?.disconnect();
         return null;
